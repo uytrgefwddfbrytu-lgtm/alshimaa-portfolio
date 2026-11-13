@@ -20,25 +20,23 @@ interface Props {
   title?: string;
 }
 
-const AUTO_SCROLL_INTERVAL = 3000; // وقت الانتظار قبل الحركة (3 ثواني)
-const TRANSITION_DURATION = 1.0; // وقت الحركة نفسها (ثانية واحدة)
-const SPACING = 300; // المسافة بين منتصف كل مشروع
+const AUTO_SCROLL_INTERVAL = 3000;
+const TRANSITION_DURATION = 1.0;
+const SPACING = 300;
 
 export default function ProjectsCarousel({ projects, title }: Props) {
-  // لو مفيش مشاريع، الكومبوننت مش هيظهر
   if (!projects || projects.length === 0) {
     return null;
   }
 
-  // تكرار المشاريع 5 مرات عشان نضمن وجود عناصر كافية على الجانبين
-  // لو المشاريع قليلة، التكرار ده بيخلي الشريط طويل ومفيش تقطيع
   const repeatedProjects = [...projects, ...projects, ...projects, ...projects, ...projects];
-  
-  // نبدأ من النص (الدورة التالتة)
   const [activeIndex, setActiveIndex] = useState(projects.length * 2);
+  
+  // حالة جديدة عشان نحفظ الصورة اللي اتختارت
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
   const count = repeatedProjects.length;
 
   const next = useCallback(() => {
@@ -46,17 +44,17 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   }, [count]);
 
   useEffect(() => {
-    if (selectedVideo || count <= 1) return;
+    // لو الصورة أو الفيديو مفتوحين، وقفي الحركة
+    if (selectedVideo || selectedImage || count <= 1) return;
     
     intervalRef.current = setInterval(next, AUTO_SCROLL_INTERVAL);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [selectedVideo, next, count]);
+  }, [selectedVideo, selectedImage, next, count]);
 
   const getOffset = (index: number) => {
     let offset = index - activeIndex;
-    // لفة لا نهائية
     if (offset > Math.floor(count / 2)) offset -= count;
     if (offset < -Math.floor(count / 2)) offset += count;
     return offset;
@@ -83,27 +81,39 @@ export default function ProjectsCarousel({ projects, title }: Props) {
               
               const isCenter = offset === 0;
               const isAdjacent = Math.abs(offset) === 1;
+
+              // رابط الصورة الكبير
+              const imageUrl = project.thumbnail ? urlFor(project.thumbnail).width(1600).url() : null;
               
               return (
                 <motion.div
                   key={`${project._id}-${index}`}
-                  // عرض أصغر عشان يبان عمق الحركة
                   className="absolute w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px]"
                   animate={{
                     x: offset * SPACING, 
-                    // الحجم: النص 1، اللي جنبه 0.7، البعيد جداً بيصغر لـ 0.4
                     scale: isCenter ? 1 : isAdjacent ? 0.7 : 0.4,
-                    // الشفافية: النص 1، اللي جنبه 0.3، البعيد جداً 0 (عشان يختفي بنعومة)
                     opacity: isCenter ? 1 : isAdjacent ? 0.3 : 0,
-                    // الترتيب
                     zIndex: isCenter ? 10 : isAdjacent ? 5 : 1,
-                    // دوران خفيف
                     rotateY: offset * -10,
                   }}
                   transition={{ type: "tween", duration: TRANSITION_DURATION, ease: "easeInOut" }}
                   style={{ perspective: 1200 }}
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                  {/* 
+                    ضفنا onClick على الكارت نفسه عشان لو مفيش فيديو، يفتح الصورة 
+                  */}
+                  <div 
+                    className={`relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_20px_50px_rgba(0,0,0,0.5)] ${isCenter ? 'cursor-pointer' : ''}`}
+                    onClick={() => {
+                      if (isCenter) {
+                        if (project.videoUrl) {
+                          setSelectedVideo(project.videoUrl);
+                        } else if (imageUrl) {
+                          setSelectedImage(imageUrl);
+                        }
+                      }
+                    }}
+                  >
                     
                     {project.thumbnail ? (
                       <Image
@@ -133,15 +143,13 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                       </p>
                     </div>
 
+                    {/* زرار التشغيل بيظهر بس لو فيه فيديو */}
                     {isCenter && project.videoUrl && (
-                      <button
-                        onClick={() => setSelectedVideo(project.videoUrl!)}
-                        className="absolute inset-0 flex items-center justify-center z-30 group"
-                      >
+                      <div className="absolute inset-0 flex items-center justify-center z-30 group pointer-events-none">
                         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D49A2A] text-[#2D2926] shadow-xl transition-transform group-hover:scale-110">
                           <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         </span>
-                      </button>
+                      </div>
                     )}
                   </div>
                 </motion.div>
@@ -149,7 +157,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
             })}
           </div>
 
-          {/* أزرار التحكم */}
           <button
             onClick={() => setActiveIndex((i) => (i - 1 + count) % count)}
             className="absolute left-4 top-1/2 z-30 -translate-y-1/2 rounded-full bg-white/5 p-4 text-white backdrop-blur-md hover:bg-white/15 transition-all"
@@ -165,12 +172,27 @@ export default function ProjectsCarousel({ projects, title }: Props) {
         </div>
       </section>
 
-      <Modal open={!!selectedVideo} onClose={() => setSelectedVideo(null)}>
+      {/* المودال بقى بيستقبل الفيديو أو الصورة */}
+      <Modal 
+        open={!!selectedVideo || !!selectedImage} 
+        onClose={() => {
+          setSelectedVideo(null);
+          setSelectedImage(null);
+        }}
+      >
         {selectedVideo && (
           <video
             src={selectedVideo}
             controls
             autoPlay
+            className="h-full w-full rounded-lg object-contain"
+            style={{ backgroundColor: 'black' }}
+          />
+        )}
+        {selectedImage && (
+          <img
+            src={selectedImage}
+            alt="Project Fullscreen"
             className="h-full w-full rounded-lg object-contain"
             style={{ backgroundColor: 'black' }}
           />
