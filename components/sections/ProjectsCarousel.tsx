@@ -20,14 +20,23 @@ interface Props {
   title?: string;
 }
 
-const AUTO_SCROLL_INTERVAL = 3000; // كل 3 ثواني (عشان الحركة تبقى هادية)
+const AUTO_SCROLL_INTERVAL = 3000;
 
 export default function ProjectsCarousel({ projects, title }: Props) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  // لو مفيش مشاريع متسجلة
+  if (!projects || projects.length === 0) {
+    return null;
+  }
+
+  // 1. نكرر المشاريع 3 مرات عشان نعمل شريط طويل (Infinite Loop)
+  const displayProjects = [...projects, ...projects, ...projects];
+  
+  // 2. نبدأ من النص بالظبط
+  const [activeIndex, setActiveIndex] = useState(projects.length);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const count = projects.length;
+  const count = displayProjects.length;
 
   const next = useCallback(() => {
     setActiveIndex((i) => (i + 1) % count);
@@ -42,6 +51,7 @@ export default function ProjectsCarousel({ projects, title }: Props) {
     };
   }, [selectedVideo, next, count]);
 
+  // 3. حساب المسافة بين العناصر عشان تلف في دايرة
   const getOffset = (index: number) => {
     let offset = index - activeIndex;
     if (offset > Math.floor(count / 2)) offset -= count;
@@ -49,46 +59,45 @@ export default function ProjectsCarousel({ projects, title }: Props) {
     return offset;
   };
 
-  if (!projects || projects.length === 0) {
-    return null;
-  }
-
   return (
     <>
       <section 
-        className="relative z-20 flex flex-col items-center justify-center py-20 overflow-hidden"
+        // السيكشن بياخد 90% من طول الشاشة
+        className="relative z-20 flex flex-col items-center justify-center h-[90vh] py-8 overflow-hidden"
         style={{
           background: "radial-gradient(circle at center, #2A2624 0%, #1C1A19 100%)"
         }}
       >
         {title && (
-          <h2 className="text-center font-heading text-4xl sm:text-5xl font-bold text-[#F4EFE6] mb-16 px-6">
+          <h2 className="text-center font-heading text-4xl sm:text-5xl font-bold text-[#F4EFE6] mb-10 px-6">
             {title}
           </h2>
         )}
 
-        <div className="relative flex h-[55vh] min-h-[480px] w-full items-center justify-center">
+        <div className="relative flex h-[65vh] w-full items-center justify-center">
           <div className="relative flex w-full max-w-7xl items-center justify-center">
-            {projects.map((project, index) => {
+            {displayProjects.map((project, index) => {
               const offset = getOffset(index);
               const isCenter = offset === 0;
-              const isVisible = Math.abs(offset) <= 1;
+              // بنعرض 5 عناصر بس عشان الأداء والانسيابية
+              const isVisible = Math.abs(offset) <= 2; 
 
               if (!isVisible) return null;
 
               return (
                 <motion.div
-                  key={project._id}
-                  className="absolute w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px]"
+                  // ضفنا index للـ key عشان نمنع مشاكل التكرار
+                  key={`${project._id}-${index}`}
+                  className="absolute w-[240px] sm:w-[280px] md:w-[320px] lg:w-[340px]"
                   animate={{
-                    x: offset * 340, // مسافة أقرب (كانت 450)
-                    scale: isCenter ? 1 : 0.65, 
-                    opacity: isCenter ? 1 : 0.35, 
-                    zIndex: isCenter ? 10 : 1,
+                    x: offset * 340, 
+                    scale: isCenter ? 1 : Math.abs(offset) === 1 ? 0.65 : 0.4,
+                    opacity: isCenter ? 1 : Math.abs(offset) === 1 ? 0.35 : 0,
+                    zIndex: isCenter ? 10 : Math.abs(offset) === 1 ? 5 : 1,
                     rotateY: offset * -8, 
                   }}
-                  // تم التعديل هنا: شيلنا spring وحطينا tween عشان الانسيابية
-                  transition={{ type: "tween", duration: 0.9, ease: "easeInOut" }}
+                  // سرعة الحركة والانسيابية
+                  transition={{ type: "tween", duration: 0.8, ease: "easeInOut" }}
                   style={{ perspective: 1200 }}
                 >
                   <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
@@ -99,11 +108,11 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                         alt={project.title}
                         fill
                         className="object-cover object-top"
-                        sizes="(max-width: 768px) 280px, 360px"
+                        sizes="(max-width: 768px) 280px, 340px"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gray-800">
-                        <span className="text-white/20 text-6xl font-bold">{index + 1}</span>
+                        <span className="text-white/20 text-6xl font-bold">0{(index % projects.length) + 1}</span>
                       </div>
                     )}
 
