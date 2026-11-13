@@ -67,7 +67,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
         onMouseLeave={() => setIsHovered(false)}
         className="relative z-20 flex flex-col items-center justify-center h-[90vh] py-8 overflow-hidden"
         style={{
-          // هنا التعديل: خلفية غامقة جداً عشان المشاريع تبان منورة
           background: "radial-gradient(circle at center, #111111 0%, #000000 100%)"
         }}
       >
@@ -102,7 +101,8 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                 >
                   {/* الغلاف الملون (الإطار) */}
                   <div 
-                    className="rounded-[20px] p-[3px] shadow-[0_0_40px_rgba(0,0,0,0.8)] transition-all duration-300 hover:shadow-[0_0_50px_rgba(212,154,42,0.4)]"
+                    // ضفنا توهج (Glow) لما الماوس ييجي على الإطار
+                    className="rounded-[20px] p-[3px] shadow-[0_0_40px_rgba(0,0,0,0.8)] transition-all duration-300 hover:shadow-[0_0_60px_rgba(255,183,3,0.6)]"
                     style={{
                       background: "conic-gradient(from 90deg, #2D2926 0%, #F9F6F0 33%, #288B8B 66%, #2D2926 100%)"
                     }}
@@ -151,7 +151,8 @@ export default function ProjectsCarousel({ projects, title }: Props) {
 
                       {isCenter && project.videoUrl && (
                         <div className="absolute inset-0 flex items-center justify-center z-30 group pointer-events-none">
-                          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D49A2A] text-[#2D2926] shadow-xl transition-transform group-hover:scale-110">
+                          {/* ضفنا توهج قوي جداً حوالين الزرار */}
+                          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FFB703] text-[#2D2926] shadow-[0_0_30px_rgba(255,183,3,0.8)] transition-transform group-hover:scale-110">
                             <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                           </span>
                         </div>
