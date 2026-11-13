@@ -4,17 +4,21 @@ import ProjectsCarousel from "@/components/sections/ProjectsCarousel";
 import Contact from "@/components/sections/Contact";
 import { client } from "@/lib/sanity/client";
 import { heroQuery, projectsQuery, contactQuery } from "@/lib/sanity/queries";
+import { groq } from "next-sanity";
 
-// export const revalidate = 60;
- export const revalidate = 0;
+export const revalidate = 0; // تحديث فوري
+
+// استعلام لجلب إعدادات السيكشن
+const sectionsQuery = groq`*[_type == "sectionConfig"] { sectionKey, title }`;
+
 export default async function Home() {
-  const [heroData, projects, contactData] = await Promise.all([
+  const [heroData, projects, contactData, sections] = await Promise.all([
     client.fetch(heroQuery),
     client.fetch(projectsQuery),
     client.fetch(contactQuery),
+    client.fetch(sectionsQuery),
   ]);
 
-  // بيانات مؤقتة (تظهر فقط لو قاعدة البيانات فاضية)
   const fallbackHero = {
     badgeText: "FREELANCE MOTION DESIGNER",
     headline: "I Make Ideas Move.",
@@ -28,14 +32,29 @@ export default async function Home() {
     behanceUrl: "#", dribbbleUrl: "#", linkedinUrl: "#"
   };
 
+  // فصل المشاريع حسب السيكشن
+  const section1Projects = projects?.filter((p: any) => p.section === "section1") || [];
+  const section2Projects = projects?.filter((p: any) => p.section === "section2") || [];
+
+  // جلب عناوين السيكشن
+  const sec1Title = sections?.find((s: any) => s.sectionKey === "section1")?.title || "Selected Works";
+  const sec2Title = sections?.find((s: any) => s.sectionKey === "section2")?.title || "More Projects";
+
   return (
-    <main className="relative">
+    <main className="relative bg-[#F9F6F0]">
       <Navbar />
-      {/* بنبعت البيانات الحقيقية، ولو مفيش بنبعت الـ fallback */}
       <Hero data={heroData || fallbackHero} />
+      
+      {/* السيكشن الأول */}
       <section id="work">
-        <ProjectsCarousel projects={projects || []} />
+        <ProjectsCarousel projects={section1Projects} title={sec1Title} />
       </section>
+
+      {/* السيكشن الثاني */}
+      <section id="more-work">
+        <ProjectsCarousel projects={section2Projects} title={sec2Title} />
+      </section>
+
       <Contact data={contactData || fallbackContact} />
     </main>
   );

@@ -42,6 +42,20 @@ export const project = defineType({
       description: "Lower numbers appear first.",
       initialValue: 10,
     }),
+    // تم نقل الحقل هنا ليكون داخل الـ fields
+    defineField({
+      name: "section",
+      title: "Section",
+      type: "string",
+      description: "اختي القسم الذي سيظهر فيه المشروع",
+      options: {
+        list: [
+          { title: "Section 1", value: "section1" },
+          { title: "Section 2", value: "section2" },
+        ],
+      },
+      initialValue: "section1",
+    }),
   ],
   orderings: [
     {
