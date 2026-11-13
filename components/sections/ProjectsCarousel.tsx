@@ -67,7 +67,8 @@ export default function ProjectsCarousel({ projects, title }: Props) {
         onMouseLeave={() => setIsHovered(false)}
         className="relative z-20 flex flex-col items-center justify-center h-[90vh] py-8 overflow-hidden"
         style={{
-          background: "radial-gradient(circle at center, #2A2624 0%, #1C1A19 100%)"
+          // هنا التعديل: خلفية غامقة جداً عشان المشاريع تبان منورة
+          background: "radial-gradient(circle at center, #111111 0%, #000000 100%)"
         }}
       >
         {title && (
@@ -101,9 +102,8 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                 >
                   {/* الغلاف الملون (الإطار) */}
                   <div 
-                    className="rounded-[20px] p-[3px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-300 hover:shadow-[0_20px_60px_rgba(212,154,42,0.3)]"
+                    className="rounded-[20px] p-[3px] shadow-[0_0_40px_rgba(0,0,0,0.8)] transition-all duration-300 hover:shadow-[0_0_50px_rgba(212,154,42,0.4)]"
                     style={{
-                      // هنا بنعمل التدرج: أسود -> أبيض -> أخضر (تركواز)
                       background: "conic-gradient(from 90deg, #2D2926 0%, #F9F6F0 33%, #288B8B 66%, #2D2926 100%)"
                     }}
                   >
