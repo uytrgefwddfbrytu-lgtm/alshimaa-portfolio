@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Syne } from "next/font/google";
 import "./globals.css";
-// 1. استيراد مكون الخلفية
 import BackgroundBlobs from "@/components/animations/BackgroundBlobs";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -21,14 +20,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${syne.variable}`}>
       <body className="relative">
-        {/* 2. الخلفية المتحركة (هتكون ورا كل حاجة) */}
+        
+        {/* الدوائر المتحركة في الخلف */}
         <BackgroundBlobs />
         
-        {/* 3. محتوى الموقع */}
+        {/* محتوى الموقع */}
         {children}
         
-        {/* 4. طبقة النويز (هتكون فوق كل حاجة بس شفافة) */}
+        {/* طبقة النويز فوق كل حاجة */}
         <div className="bg-noise" />
+        
       </body>
     </html>
   );
