@@ -14,6 +14,7 @@ export const projectsQuery = groq`*[_type == "project"] | order(order asc){
   year,
   thumbnail,
   videoUrl,
+   section,
   "order": order
 }`;
 
