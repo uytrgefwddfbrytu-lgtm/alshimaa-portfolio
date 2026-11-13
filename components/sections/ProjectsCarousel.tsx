@@ -20,11 +20,10 @@ interface Props {
   title?: string;
 }
 
-const AUTO_SCROLL_INTERVAL = 2000;
+const AUTO_SCROLL_INTERVAL = 2500; // سرعة التبديل (كل 2.5 ثانية)
 
 export default function ProjectsCarousel({ projects, title }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -35,14 +34,14 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   }, [count]);
 
   useEffect(() => {
-    // تمت إضافة selectedVideo هنا عشان لو المودال مفتوح، الحركة تقف
-    if (isPaused || selectedVideo || count <= 1) return;
+    // الحركة مستمرة، بتقف بس لو الفيديو مفتوح (selectedVideo)
+    if (selectedVideo || count <= 1) return;
     
     intervalRef.current = setInterval(next, AUTO_SCROLL_INTERVAL);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isPaused, selectedVideo, next, count]); // ضفنا selectedVideo في الـ dependencies
+  }, [selectedVideo, next, count]);
 
   const getOffset = (index: number) => {
     let offset = index - activeIndex;
@@ -58,17 +57,19 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   return (
     <>
       <section 
-        className="relative z-20 flex flex-col items-center justify-center bg-[#1A1A1A] py-16 overflow-hidden"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
+        // لون خلفية أدفأ وأخف من الأسود الصريح، مع تدرج لوني (Gradient) بيدي إحساس بالعمق
+        className="relative z-20 flex flex-col items-center justify-center py-20 overflow-hidden"
+        style={{
+          background: "radial-gradient(circle at center, #2A2624 0%, #1C1A19 100%)"
+        }}
       >
         {title && (
-          <h2 className="text-center font-heading text-4xl sm:text-5xl font-bold text-[#F9F6F0] mb-12 px-6">
+          <h2 className="text-center font-heading text-4xl sm:text-5xl font-bold text-[#F4EFE6] mb-16 px-6">
             {title}
           </h2>
         )}
 
-        <div className="relative flex h-[50vh] min-h-[450px] w-full items-center justify-center">
+        <div className="relative flex h-[55vh] min-h-[480px] w-full items-center justify-center">
           <div className="relative flex w-full max-w-7xl items-center justify-center">
             {projects.map((project, index) => {
               const offset = getOffset(index);
@@ -82,29 +83,24 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                   key={project._id}
                   className="absolute w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px]"
                   animate={{
-                    x: offset * 310,
-                    scale: isCenter ? 1 : 0.8,
-                    opacity: isCenter ? 1 : 0.3,
+                    x: offset * 450, // مسافة أكبر بين المشاريع (كانت 310)
+                    scale: isCenter ? 1 : 0.65, // تصغير المشاريع الجانبية (كانت 0.8)
+                    opacity: isCenter ? 1 : 0.35, // شفافية المشاريع الجانبية
                     zIndex: isCenter ? 10 : 1,
-                    rotateY: offset * -10,
+                    rotateY: offset * -8, // ميلان بسيط جداً للإحساس بالـ 3D
                   }}
-                  transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                  transition={{ type: "spring", stiffness: 150, damping: 25 }}
                   style={{ perspective: 1200 }}
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border-[3px] border-[#F9F6F0]/50 bg-[#1A1A1A] shadow-2xl">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                     
                     {project.thumbnail ? (
                       <Image
-                        src={urlFor(project.thumbnail)
-                          .width(1200)        // طلب الصورة بعرض 1200 بكسل (مناسب جداً للشاشات عالية الدقة)
-                          .quality(100)       // أعلى جودة ممكنة من Sanity
-                          .auto("format")     // يحولها لصيغة WebP عشان تكون خفيفة وسريعة وبنفس الجودة
-                          .url()}
+                        src={urlFor(project.thumbnail).width(1000).url()}
                         alt={project.title}
                         fill
-                        className="object-cover object-center" // object-center بيخلي الصورة في النص، ولو عايزة تظبطي القص استخدمي الـ Hotspot في Sanity
-                        sizes="(max-width: 768px) 280px, (max-width: 1024px) 320px, 400px" // بيحدد للمتصفح حجم الصورة المطلوبة عشان ميحملش حجم كبير على الموبايل
-                        quality={95} // جودة الـ Next.js نفسها
+                        className="object-cover object-top"
+                        sizes="(max-width: 768px) 280px, 360px"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gray-800">
@@ -112,13 +108,14 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                       </div>
                     )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90" />
+                    {/* تدرج عشان الكلام يبان */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90" />
 
                     <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
                       <h3 className="font-heading text-xl sm:text-2xl font-bold text-white mb-1 leading-tight">
                         {project.title}
                       </h3>
-                      <p className="text-[10px] sm:text-xs uppercase tracking-widest text-[#F9F6F0]/70 font-semibold">
+                      <p className="text-[10px] sm:text-xs uppercase tracking-widest text-[#F4EFE6]/60 font-semibold">
                         {project.tags?.join(" · ")}
                         {project.year ? ` · ${project.year}` : ""}
                       </p>
@@ -127,9 +124,9 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                     {isCenter && project.videoUrl && (
                       <button
                         onClick={() => setSelectedVideo(project.videoUrl!)}
-                        className="absolute inset-0 flex items-center justify-center z-30"
+                        className="absolute inset-0 flex items-center justify-center z-30 group"
                       >
-                        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#D49A2A] text-[#2D2926] shadow-xl transition-transform hover:scale-110">
+                        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#D49A2A] text-[#2D2926] shadow-xl transition-transform group-hover:scale-110">
                           <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         </span>
                       </button>
@@ -142,13 +139,13 @@ export default function ProjectsCarousel({ projects, title }: Props) {
 
           <button
             onClick={() => setActiveIndex((i) => (i - 1 + count) % count)}
-            className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white backdrop-blur-md hover:bg-white/30 transition-all"
+            className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/5 p-4 text-white backdrop-blur-md hover:bg-white/15 transition-all"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           </button>
           <button
             onClick={next}
-            className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white backdrop-blur-md hover:bg-white/30 transition-all"
+            className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/5 p-4 text-white backdrop-blur-md hover:bg-white/15 transition-all"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </button>

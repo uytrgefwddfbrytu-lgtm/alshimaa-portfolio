@@ -3,11 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --cream: #F9F6F0;
+  /* درجة كريمي أدفأ وأعمق شوية */
+  --cream: #F4EFE6; 
   --mustard: #D49A2A;
   --teal: #288B8B;
   --charcoal: #2D2926;
-  --deep: #1A1A1A;
+  --deep: #1C1A19;
 }
 
 html {

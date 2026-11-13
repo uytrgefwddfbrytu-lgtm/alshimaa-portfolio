@@ -29,7 +29,7 @@ export default async function Home() {
   };
 
   return (
-    <main className="relative bg-[#F9F6F0]">
+    <main className="relative bg-[#F4EFE6]">
       <Navbar />
       <Hero data={heroData || fallbackHero} />
       
@@ -42,8 +42,8 @@ export default async function Home() {
             <section id={`section-${section._id}`}>
               <ProjectsCarousel projects={sectionProjects} title={section.title} />
             </section>
-            {/* الفاصل بلون الصفحة (حوالي 5 سنتي) */}
-            <div className="h-[180px] w-full bg-[#F9F6F0]" />
+            {/* الفاصل بلون الصفحة الجديد */}
+            <div className="h-[180px] w-full bg-[#F4EFE6]" />
           </div>
         );
       })}
