@@ -17,10 +17,10 @@ type Project = {
 
 interface Props {
   projects: Project[];
-  title?: string; // إضافة العنوان
+  title?: string;
 }
 
-const AUTO_SCROLL_INTERVAL = 2000; // تسريع الحركة (كانت 3500)
+const AUTO_SCROLL_INTERVAL = 2000;
 
 export default function ProjectsCarousel({ projects, title }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -50,17 +50,16 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   };
 
   if (!projects || projects.length === 0) {
-    return null; // لو مفيش مشاريع في القسم ده، ميظهرش حاجة
+    return null;
   }
 
   return (
     <>
-      {/* تغيير الخلفية لدرجة أفتح وإضافة العنوان */}
-      <section className="relative flex flex-col items-center justify-center bg-[#262422] py-20 overflow-hidden"
+      <section 
+        className="relative z-20 flex flex-col items-center justify-center bg-[#1A1A1A] py-20 overflow-hidden"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
-        {/* العنوان الديناميكي */}
         {title && (
           <h2 className="text-center font-heading text-4xl sm:text-5xl font-bold text-[#F9F6F0] mb-16 px-6">
             {title}
@@ -90,7 +89,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                   transition={{ type: "spring", stiffness: 200, damping: 25 }}
                   style={{ perspective: 1200 }}
                 >
-                  {/* الإطار الواضح */}
                   <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border-[3px] border-[#F9F6F0]/50 bg-[#1A1A1A] shadow-2xl">
                     
                     {project.thumbnail ? (
@@ -135,7 +133,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
             })}
           </div>
 
-          {/* أزرار التحكم */}
           <button
             onClick={() => setActiveIndex((i) => (i - 1 + count) % count)}
             className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-4 text-white backdrop-blur-md hover:bg-white/30 transition-all"

@@ -33,18 +33,18 @@ export default async function Home() {
       <Navbar />
       <Hero data={heroData || fallbackHero} />
       
-      {/* لوب على السكاشن اللي إنتِ ضفتيها */}
       {sections?.map((section: any) => {
-        // فلترة المشاريع اللي تابعة للسيكشن ده
         const sectionProjects = projects?.filter((p: any) => p.sectionId === section._id) || [];
-        
-        // لو مفيش مشاريع في السيكشن ده، متعرضيهوش
         if (sectionProjects.length === 0) return null;
 
         return (
-          <section key={section._id} id={`section-${section._id}`}>
-            <ProjectsCarousel projects={sectionProjects} title={section.title} />
-          </section>
+          <div key={section._id}>
+            <section id={`section-${section._id}`}>
+              <ProjectsCarousel projects={sectionProjects} title={section.title} />
+            </section>
+            {/* الفاصل بلون الصفحة (حوالي 5 سنتي) */}
+            <div className="h-[180px] w-full bg-[#F9F6F0]" />
+          </div>
         );
       })}
 
