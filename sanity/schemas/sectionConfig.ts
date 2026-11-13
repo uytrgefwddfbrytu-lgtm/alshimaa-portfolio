@@ -2,27 +2,32 @@ import { defineField, defineType } from "sanity";
 
 export const sectionConfig = defineType({
   name: "sectionConfig",
-  title: "Section Configurations",
+  title: "Sections Settings",
   type: "document",
   fields: [
-    defineField({
-      name: "sectionKey",
-      title: "Section Key",
-      type: "string",
-      description: "استخدمي section1 للقسم الأول، و section2 للقسم الثاني",
-      options: {
-        list: [
-          { title: "Section 1", value: "section1" },
-          { title: "Section 2", value: "section2" },
-        ],
-      },
-      validation: (Rule) => Rule.required(),
-    }),
     defineField({
       name: "title",
       title: "Section Title",
       type: "string",
-      initialValue: "Selected Works",
+      description: "اكتبي اسم السيكشن (مثلاً: Selected Works, 2D Animation, etc.)",
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "order",
+      title: "Order",
+      type: "number",
+      description: "رقم الترتيب (1 يظهر أولاً، ثم 2، إلخ)",
+      initialValue: 1,
     }),
   ],
+  orderings: [
+    {
+      title: "Order",
+      name: "order",
+      by: [{ field: "order", direction: "asc" }],
+    },
+  ],
+  preview: {
+    select: { title: "title", subtitle: "order" },
+  },
 });

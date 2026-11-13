@@ -7,6 +7,11 @@ export const heroQuery = groq`*[_type == "heroSettings"][0]{
   showreelVideoUrl
 }`;
 
+export const sectionsQuery = groq`*[_type == "sectionConfig"] | order(order asc){
+  _id,
+  title
+}`;
+
 export const projectsQuery = groq`*[_type == "project"] | order(order asc){
   _id,
   title,
@@ -14,8 +19,7 @@ export const projectsQuery = groq`*[_type == "project"] | order(order asc){
   year,
   thumbnail,
   videoUrl,
-   section,
-  "order": order
+  "sectionId": section._ref // بنجيب الآي دي بتاع السيكشن اللي المشروع مرتبط بيه
 }`;
 
 export const contactQuery = groq`*[_type == "contactInfo"][0]{

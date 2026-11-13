@@ -46,15 +46,9 @@ export const project = defineType({
     defineField({
       name: "section",
       title: "Section",
-      type: "string",
-      description: "اختي القسم الذي سيظهر فيه المشروع",
-      options: {
-        list: [
-          { title: "Section 1", value: "section1" },
-          { title: "Section 2", value: "section2" },
-        ],
-      },
-      initialValue: "section1",
+      type: "reference", // حولناها لمرجع
+      to: [{ type: "sectionConfig" }], // بيشاور على السكاشن اللي إنتِ عملتيها
+      description: "اختاري السيكشن اللي المشروع ده هيظهر فيه",
     }),
   ],
   orderings: [
