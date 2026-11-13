@@ -25,7 +25,8 @@ export default function Modal({ open, onClose, children }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          // رفعنا الـ z-index لأقصى درجة عشان مفيش حاجة تغطيه
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
           onClick={onClose}
         >
           <motion.div
@@ -33,17 +34,17 @@ export default function Modal({ open, onClose, children }: Props) {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", damping: 25 }}
-            className="relative w-full max-w-4xl overflow-hidden rounded-xl bg-deep shadow-2xl"
+            className="relative w-full max-w-4xl overflow-hidden rounded-xl bg-[#1A1A1A] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={onClose}
-              className="absolute right-3 top-3 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+              className="absolute right-3 top-3 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
               aria-label="Close"
             >
               ✕
             </button>
-            <div className="aspect-video">{children}</div>
+            <div className="aspect-video w-full">{children}</div>
           </motion.div>
         </motion.div>
       )}
