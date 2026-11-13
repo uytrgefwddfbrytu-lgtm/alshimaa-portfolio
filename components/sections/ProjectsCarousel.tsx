@@ -20,23 +20,26 @@ interface Props {
   title?: string;
 }
 
-const AUTO_SCROLL_INTERVAL = 3500; // وقت الانتظار بين كل حركة (3.5 ثانية)
-const TRANSITION_DURATION = 1.2; // وقت الحركة نفسها (1.2 ثانية) عشان تبان بوضوح
-const SPACING = 320; // المسافة بين منتصف كل مشروع
+const AUTO_SCROLL_INTERVAL = 3000; // وقت الانتظار قبل الحركة (3 ثواني)
+const TRANSITION_DURATION = 1.0; // وقت الحركة نفسها (ثانية واحدة)
+const SPACING = 300; // المسافة بين منتصف كل مشروع
 
 export default function ProjectsCarousel({ projects, title }: Props) {
-  // تكرار المشاريع 7 مرات عشان نضمن وجود عناصر كافية على الجانبين بدون تقطيع
-  const extendedProjects = [
-    ...projects, ...projects, ...projects, ...projects, 
-    ...projects, ...projects, ...projects
-  ];
+  // لو مفيش مشاريع، الكومبوننت مش هيظهر
+  if (!projects || projects.length === 0) {
+    return null;
+  }
+
+  // تكرار المشاريع 5 مرات عشان نضمن وجود عناصر كافية على الجانبين
+  // لو المشاريع قليلة، التكرار ده بيخلي الشريط طويل ومفيش تقطيع
+  const repeatedProjects = [...projects, ...projects, ...projects, ...projects, ...projects];
   
-  // نبدأ من النص (الدورة الرابعة)
-  const [activeIndex, setActiveIndex] = useState(projects.length * 3);
+  // نبدأ من النص (الدورة التالتة)
+  const [activeIndex, setActiveIndex] = useState(projects.length * 2);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const count = extendedProjects.length;
+  const count = repeatedProjects.length;
 
   const next = useCallback(() => {
     setActiveIndex((i) => (i + 1) % count);
@@ -53,64 +56,50 @@ export default function ProjectsCarousel({ projects, title }: Props) {
 
   const getOffset = (index: number) => {
     let offset = index - activeIndex;
+    // لفة لا نهائية
     if (offset > Math.floor(count / 2)) offset -= count;
     if (offset < -Math.floor(count / 2)) offset += count;
     return offset;
   };
 
-  if (!projects || projects.length === 0) {
-    return null;
-  }
-
   return (
     <>
       <section 
-        // السيكشن بياخد 90% من طول الشاشة
         className="relative z-20 flex flex-col items-center justify-center h-[90vh] py-8 overflow-hidden"
         style={{
           background: "radial-gradient(circle at center, #2A2624 0%, #1C1A19 100%)"
         }}
       >
         {title && (
-          // مسافة واضحة بين العنوان والمشاريع (mb-16)
           <h2 className="text-center font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-[#F4EFE6] mb-16 px-6">
             {title}
           </h2>
         )}
 
-        {/* حاوية المشاريع */}
         <div className="relative flex h-[60vh] w-full items-center justify-center">
           <div className="relative flex w-full max-w-7xl items-center justify-center">
-            {extendedProjects.map((project, index) => {
+            {repeatedProjects.map((project, index) => {
               const offset = getOffset(index);
               
-              // 1. العنصر في النص (Center)
               const isCenter = offset === 0;
-              // 2. العنصر اللي جنبه يمين أو شمال (Adjacent)
               const isAdjacent = Math.abs(offset) === 1;
-              // 3. العنصر الأبعد (Hidden/Fading out)
-              const isFar = Math.abs(offset) === 2;
-
-              // مش بنخفي العنصر بـ return null عشان مفيش نطة، بس بنخلي شفافيته 0
-              // بنعرض 5 عناصر بس لتحسين الأداء
-              if (Math.abs(offset) > 2) return null;
-
+              
               return (
                 <motion.div
                   key={`${project._id}-${index}`}
-                  // تصغير مساحة العرض (w-[200px] لحد w-[280px])
+                  // عرض أصغر عشان يبان عمق الحركة
                   className="absolute w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px]"
                   animate={{
                     x: offset * SPACING, 
-                    // الحجم: النص كبير، اللي جنبه أصغر، واللي بيختفي أصغر بكتير
-                    scale: isCenter ? 1 : isAdjacent ? 0.75 : 0.5,
-                    // الشفافية: النص كامل، اللي جنبه خفيف، واللي في الآخر بيختفي
-                    opacity: isCenter ? 1 : isAdjacent ? 0.4 : 0,
+                    // الحجم: النص 1، اللي جنبه 0.7، البعيد جداً بيصغر لـ 0.4
+                    scale: isCenter ? 1 : isAdjacent ? 0.7 : 0.4,
+                    // الشفافية: النص 1، اللي جنبه 0.3، البعيد جداً 0 (عشان يختفي بنعومة)
+                    opacity: isCenter ? 1 : isAdjacent ? 0.3 : 0,
+                    // الترتيب
                     zIndex: isCenter ? 10 : isAdjacent ? 5 : 1,
-                    // ميلان خفيف جداً للعناصر الجانبية
-                    rotateY: offset * -5,
+                    // دوران خفيف
+                    rotateY: offset * -10,
                   }}
-                  // زمن الحركة 1.2 ثانية مع نعومة في البداية والنهاية
                   transition={{ type: "tween", duration: TRANSITION_DURATION, ease: "easeInOut" }}
                   style={{ perspective: 1200 }}
                 >
@@ -132,10 +121,9 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                       </div>
                     )}
 
-                    {/* تدرج عشان النص يبان */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90" />
 
-                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
                       <h3 className="font-heading text-lg sm:text-xl font-bold text-white mb-1 leading-tight">
                         {project.title}
                       </h3>
