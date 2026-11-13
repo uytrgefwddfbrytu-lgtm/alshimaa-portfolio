@@ -3,16 +3,11 @@
 @tailwind utilities;
 
 :root {
-  /* لون كريمي مشبع ودافئ (أغمق من الأبيض) */
-  --cream: #EAE1D1; 
-  --mustard: #D49A2A;
+  --cream: #F4EFE6; 
+  --mustard: #D49A2A; /* 👈 رجعنا اللون زي ما كان */
   --teal: #288B8B;
   --charcoal: #2D2926;
   --deep: #1C1A19;
-}
-
-html {
-  scroll-behavior: smooth;
 }
 
 body {

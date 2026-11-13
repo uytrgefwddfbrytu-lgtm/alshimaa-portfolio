@@ -20,7 +20,7 @@ interface Props {
   title?: string;
 }
 
-const AUTO_SCROLL_INTERVAL = 3000;
+const AUTO_SCROLL_INTERVAL = 4500;
 const TRANSITION_DURATION = 0.8;
 const SPACING = 300;
 
@@ -45,9 +45,13 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   }, [count]);
 
   useEffect(() => {
-    if (selectedVideo || selectedImage || isHovered || count <= 1) return;
+    if (isHovered || selectedVideo || selectedImage || count <= 1) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      return;
+    }
     
     intervalRef.current = setInterval(next, AUTO_SCROLL_INTERVAL);
+    
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -92,17 +96,17 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                   animate={{
                     x: offset * SPACING, 
                     scale: isCenter ? 1 : isAdjacent ? 0.7 : 0.4,
-                    opacity: isCenter ? 1 : isAdjacent ? 0.3 : 0,
+                    // 👈 هنا التعديل: غيرنا الشفافية من 0.3 لـ 0.8
+                    opacity: isCenter ? 1 : isAdjacent ? 0.8 : 0,
                     zIndex: isCenter ? 10 : isAdjacent ? 5 : 1,
                     rotateY: offset * -10,
                   }}
                   transition={{ type: "tween", duration: TRANSITION_DURATION, ease: "easeInOut" }}
                   style={{ perspective: 1200 }}
                 >
-                  {/* الغلاف الملون (الإطار) */}
+                  {/* الغلاف الملون + الظل الأصفر */}
                   <div 
-                    // ضفنا توهج (Glow) لما الماوس ييجي على الإطار
-                    className="rounded-[20px] p-[3px] shadow-[0_0_40px_rgba(0,0,0,0.8)] transition-all duration-300 hover:shadow-[0_0_60px_rgba(255,183,3,0.6)]"
+                    className="rounded-[20px] p-[3px] shadow-[0_25px_50px_rgba(212,154,42,0.35)] transition-all duration-300 hover:shadow-[0_25px_60px_rgba(212,154,42,0.5)]"
                     style={{
                       background: "conic-gradient(from 90deg, #2D2926 0%, #F9F6F0 33%, #288B8B 66%, #2D2926 100%)"
                     }}
@@ -151,8 +155,7 @@ export default function ProjectsCarousel({ projects, title }: Props) {
 
                       {isCenter && project.videoUrl && (
                         <div className="absolute inset-0 flex items-center justify-center z-30 group pointer-events-none">
-                          {/* ضفنا توهج قوي جداً حوالين الزرار */}
-                          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FFB703] text-[#2D2926] shadow-[0_0_30px_rgba(255,183,3,0.8)] transition-transform group-hover:scale-110">
+                          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D49A2A] text-[#2D2926] shadow-[0_0_25px_rgba(212,154,42,0.8)] transition-transform group-hover:scale-110">
                             <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                           </span>
                         </div>
