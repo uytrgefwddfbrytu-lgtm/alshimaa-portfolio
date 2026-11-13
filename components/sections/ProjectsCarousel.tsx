@@ -95,11 +95,16 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                     
                     {project.thumbnail ? (
                       <Image
-                        src={urlFor(project.thumbnail).width(1000).url()}
+                        src={urlFor(project.thumbnail)
+                          .width(1200)        // طلب الصورة بعرض 1200 بكسل (مناسب جداً للشاشات عالية الدقة)
+                          .quality(100)       // أعلى جودة ممكنة من Sanity
+                          .auto("format")     // يحولها لصيغة WebP عشان تكون خفيفة وسريعة وبنفس الجودة
+                          .url()}
                         alt={project.title}
                         fill
-                        className="object-cover object-top"
-                        sizes="(max-width: 768px) 280px, 360px"
+                        className="object-cover object-center" // object-center بيخلي الصورة في النص، ولو عايزة تظبطي القص استخدمي الـ Hotspot في Sanity
+                        sizes="(max-width: 768px) 280px, (max-width: 1024px) 320px, 400px" // بيحدد للمتصفح حجم الصورة المطلوبة عشان ميحملش حجم كبير على الموبايل
+                        quality={95} // جودة الـ Next.js نفسها
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gray-800">
