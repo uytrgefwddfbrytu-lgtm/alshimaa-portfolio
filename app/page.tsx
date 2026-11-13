@@ -31,24 +31,34 @@ export default async function Home() {
   return (
     <main className="relative bg-[#EAE1D1]">
       <Navbar />
-      <Hero data={heroData || fallbackHero} />
       
-      {sections?.map((section: any) => {
-        const sectionProjects = projects?.filter((p: any) => p.sectionId === section._id) || [];
-        if (sectionProjects.length === 0) return null;
+      {/* قسم الهيرو (الرئيسي) */}
+      <div id="home">
+        <Hero data={heroData || fallbackHero} />
+      </div>
+      
+      {/* قسم المشاريع (جمعنا كل السيكشنز تحت id=work) */}
+      <div id="work">
+        {sections?.map((section: any) => {
+          const sectionProjects = projects?.filter((p: any) => p.sectionId === section._id) || [];
+          if (sectionProjects.length === 0) return null;
 
-        return (
-          <div key={section._id}>
-            <section id={`section-${section._id}`}>
-              <ProjectsCarousel projects={sectionProjects} title={section.title} />
-            </section>
-            {/* الفاصل بلون الصفحة الجديد المشبع */}
-            <div className="h-[180px] w-full bg-[#EAE1D1]" />
-          </div>
-        );
-      })}
+          return (
+            <div key={section._id}>
+              <section id={`section-${section._id}`}>
+                <ProjectsCarousel projects={sectionProjects} title={section.title} />
+              </section>
+              {/* الفاصل بلون الصفحة */}
+              <div className="h-[180px] w-full bg-[#EAE1D1]" />
+            </div>
+          );
+        })}
+      </div>
 
-      <Contact data={contactData || fallbackContact} />
+      {/* قسم التواصل */}
+      <div id="contact">
+        <Contact data={contactData || fallbackContact} />
+      </div>
     </main>
   );
 }

@@ -21,11 +21,10 @@ interface Props {
 }
 
 const AUTO_SCROLL_INTERVAL = 3000;
-const TRANSITION_DURATION = 1.0;
+const TRANSITION_DURATION = 0.8; // قللنا وقت الحركة شوية عشان لما تدوسي على مشروع جنب يتحرك بسرعة
 const SPACING = 300;
 
 export default function ProjectsCarousel({ projects, title }: Props) {
-  // لو مفيش مشاريع، الكومبوننت مش هيظهر
   if (!projects || projects.length === 0) {
     return null;
   }
@@ -36,7 +35,7 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   
-  // حالة جديدة عشان نعرف إذا كان الماوس واقف على السيكشن ولا لأ
+  // حالة التوقف عند الهوفر
   const [isHovered, setIsHovered] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -47,7 +46,7 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   }, [count]);
 
   useEffect(() => {
-    // الحركة بتقف لو: فيه صورة/فيديو مفتوح، أو الماوس واقف على السيكشن، أو مفيش غير مشروع واحد
+    // الحركة بتقف تماماً لو: فيه مودال مفتوح، أو الماوس واقف على السيكشن
     if (selectedVideo || selectedImage || isHovered || count <= 1) return;
     
     intervalRef.current = setInterval(next, AUTO_SCROLL_INTERVAL);
@@ -66,7 +65,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   return (
     <>
       <section 
-        // ضفنا أحداث الماوس هنا
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className="relative z-20 flex flex-col items-center justify-center h-[90vh] py-8 overflow-hidden"
@@ -104,14 +102,19 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                   style={{ perspective: 1200 }}
                 >
                   <div 
-                    className={`relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_20px_50px_rgba(0,0,0,0.5)] ${isCenter ? 'cursor-pointer' : ''}`}
+                    // خليت كل الكروت قابلة للضغط (cursor-pointer)
+                    className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_20px_50px_rgba(0,0,0,0.5)] cursor-pointer"
                     onClick={() => {
                       if (isCenter) {
+                        // لو في النص، افتح الميديا
                         if (project.videoUrl) {
                           setSelectedVideo(project.videoUrl);
                         } else if (imageUrl) {
                           setSelectedImage(imageUrl);
                         }
+                      } else {
+                        // لو على الجنب، خليه هو اللي في النص
+                        setActiveIndex(index);
                       }
                     }}
                   >
@@ -188,7 +191,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
           />
         )}
         {selectedImage && (
-          // شيلنا h-full w-full عشان الصورة تاخد أبعادها الطبيعية
           <img
             src={selectedImage}
             alt="Project Fullscreen"
