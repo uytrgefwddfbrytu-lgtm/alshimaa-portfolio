@@ -21,7 +21,7 @@ interface Props {
 }
 
 const AUTO_SCROLL_INTERVAL = 3000;
-const TRANSITION_DURATION = 0.8; // قللنا وقت الحركة شوية عشان لما تدوسي على مشروع جنب يتحرك بسرعة
+const TRANSITION_DURATION = 0.8;
 const SPACING = 300;
 
 export default function ProjectsCarousel({ projects, title }: Props) {
@@ -35,7 +35,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   
-  // حالة التوقف عند الهوفر
   const [isHovered, setIsHovered] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -46,7 +45,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   }, [count]);
 
   useEffect(() => {
-    // الحركة بتقف تماماً لو: فيه مودال مفتوح، أو الماوس واقف على السيكشن
     if (selectedVideo || selectedImage || isHovered || count <= 1) return;
     
     intervalRef.current = setInterval(next, AUTO_SCROLL_INTERVAL);
@@ -101,58 +99,64 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                   transition={{ type: "tween", duration: TRANSITION_DURATION, ease: "easeInOut" }}
                   style={{ perspective: 1200 }}
                 >
+                  {/* الغلاف الملون (الإطار) */}
                   <div 
-                    // خليت كل الكروت قابلة للضغط (cursor-pointer)
-                    className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_20px_50px_rgba(0,0,0,0.5)] cursor-pointer"
-                    onClick={() => {
-                      if (isCenter) {
-                        // لو في النص، افتح الميديا
-                        if (project.videoUrl) {
-                          setSelectedVideo(project.videoUrl);
-                        } else if (imageUrl) {
-                          setSelectedImage(imageUrl);
-                        }
-                      } else {
-                        // لو على الجنب، خليه هو اللي في النص
-                        setActiveIndex(index);
-                      }
+                    className="rounded-[20px] p-[3px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-300 hover:shadow-[0_20px_60px_rgba(212,154,42,0.3)]"
+                    style={{
+                      // هنا بنعمل التدرج: أسود -> أبيض -> أخضر (تركواز)
+                      background: "conic-gradient(from 90deg, #2D2926 0%, #F9F6F0 33%, #288B8B 66%, #2D2926 100%)"
                     }}
                   >
-                    {project.thumbnail ? (
-                      <Image
-                        src={urlFor(project.thumbnail).width(1000).url()}
-                        alt={project.title}
-                        fill
-                        className="object-cover object-top"
-                        sizes="(max-width: 768px) 240px, 280px"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gray-800">
-                        <span className="text-white/20 text-6xl font-bold">
-                          {String((index % projects.length) + 1).padStart(2, '0')}
-                        </span>
+                    <div 
+                      className="relative aspect-[4/5] w-full overflow-hidden rounded-[17px] bg-[#1A1A1A] cursor-pointer"
+                      onClick={() => {
+                        if (isCenter) {
+                          if (project.videoUrl) {
+                            setSelectedVideo(project.videoUrl);
+                          } else if (imageUrl) {
+                            setSelectedImage(imageUrl);
+                          }
+                        } else {
+                          setActiveIndex(index);
+                        }
+                      }}
+                    >
+                      {project.thumbnail ? (
+                        <Image
+                          src={urlFor(project.thumbnail).width(1000).url()}
+                          alt={project.title}
+                          fill
+                          className="object-cover object-top"
+                          sizes="(max-width: 768px) 240px, 280px"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gray-800">
+                          <span className="text-white/20 text-6xl font-bold">
+                            {String((index % projects.length) + 1).padStart(2, '0')}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90" />
+
+                      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                        <h3 className="font-heading text-lg sm:text-xl font-bold text-white mb-1 leading-tight">
+                          {project.title}
+                        </h3>
+                        <p className="text-[10px] uppercase tracking-widest text-[#F4EFE6]/60 font-semibold">
+                          {project.tags?.join(" · ")}
+                          {project.year ? ` · ${project.year}` : ""}
+                        </p>
                       </div>
-                    )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90" />
-
-                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-                      <h3 className="font-heading text-lg sm:text-xl font-bold text-white mb-1 leading-tight">
-                        {project.title}
-                      </h3>
-                      <p className="text-[10px] uppercase tracking-widest text-[#F4EFE6]/60 font-semibold">
-                        {project.tags?.join(" · ")}
-                        {project.year ? ` · ${project.year}` : ""}
-                      </p>
+                      {isCenter && project.videoUrl && (
+                        <div className="absolute inset-0 flex items-center justify-center z-30 group pointer-events-none">
+                          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D49A2A] text-[#2D2926] shadow-xl transition-transform group-hover:scale-110">
+                            <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                          </span>
+                        </div>
+                      )}
                     </div>
-
-                    {isCenter && project.videoUrl && (
-                      <div className="absolute inset-0 flex items-center justify-center z-30 group pointer-events-none">
-                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D49A2A] text-[#2D2926] shadow-xl transition-transform group-hover:scale-110">
-                          <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </motion.div>
               );
