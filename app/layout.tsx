@@ -27,8 +27,7 @@ export default function RootLayout({
         {/* محتوى الموقع */}
         {children}
         
-        {/* طبقة النويز فوق كل حاجة */}
-        <div className="bg-noise" />
+        
         
       </body>
     </html>
