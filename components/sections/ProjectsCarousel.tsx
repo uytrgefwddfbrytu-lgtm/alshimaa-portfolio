@@ -20,7 +20,7 @@ interface Props {
   title?: string;
 }
 
-const AUTO_SCROLL_INTERVAL = 2500; // سرعة التبديل (كل 2.5 ثانية)
+const AUTO_SCROLL_INTERVAL = 3000; // كل 3 ثواني (عشان الحركة تبقى هادية)
 
 export default function ProjectsCarousel({ projects, title }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -34,7 +34,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   }, [count]);
 
   useEffect(() => {
-    // الحركة مستمرة، بتقف بس لو الفيديو مفتوح (selectedVideo)
     if (selectedVideo || count <= 1) return;
     
     intervalRef.current = setInterval(next, AUTO_SCROLL_INTERVAL);
@@ -57,7 +56,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
   return (
     <>
       <section 
-        // لون خلفية أدفأ وأخف من الأسود الصريح، مع تدرج لوني (Gradient) بيدي إحساس بالعمق
         className="relative z-20 flex flex-col items-center justify-center py-20 overflow-hidden"
         style={{
           background: "radial-gradient(circle at center, #2A2624 0%, #1C1A19 100%)"
@@ -83,13 +81,14 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                   key={project._id}
                   className="absolute w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px]"
                   animate={{
-                    x: offset * 450, // مسافة أكبر بين المشاريع (كانت 310)
-                    scale: isCenter ? 1 : 0.65, // تصغير المشاريع الجانبية (كانت 0.8)
-                    opacity: isCenter ? 1 : 0.35, // شفافية المشاريع الجانبية
+                    x: offset * 340, // مسافة أقرب (كانت 450)
+                    scale: isCenter ? 1 : 0.65, 
+                    opacity: isCenter ? 1 : 0.35, 
                     zIndex: isCenter ? 10 : 1,
-                    rotateY: offset * -8, // ميلان بسيط جداً للإحساس بالـ 3D
+                    rotateY: offset * -8, 
                   }}
-                  transition={{ type: "spring", stiffness: 150, damping: 25 }}
+                  // تم التعديل هنا: شيلنا spring وحطينا tween عشان الانسيابية
+                  transition={{ type: "tween", duration: 0.9, ease: "easeInOut" }}
                   style={{ perspective: 1200 }}
                 >
                   <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
@@ -108,7 +107,6 @@ export default function ProjectsCarousel({ projects, title }: Props) {
                       </div>
                     )}
 
-                    {/* تدرج عشان الكلام يبان */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90" />
 
                     <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
